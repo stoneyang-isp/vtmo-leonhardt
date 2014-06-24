@@ -1,7 +1,8 @@
-import cv2
+import os
+
 import numpy
 
-from gt_io import Configuration
+from gt_io import Configuration, ImageSequence
 from .processor import Processor
 from tonemapping.leonhardt_tmo import wlsfilter
 from ..utilities import remove_specials, EPSILON
@@ -9,15 +10,15 @@ from ..utilities import remove_specials, EPSILON
 
 class LeonhardtTMOProcessor(Processor):
 
-  def __init__(self):
+  def __init__(self, filename=""):
     Processor.__init__(self)
 
+    self.filename = filename
     self.tmo = Configuration.leonhardt_tmo
     self.temporal = Configuration.temporal
 
     self.temporal.on_propery_changed.connect(self.invalidate_temporal)
     self.tmo.on_contrast_changed.connect(self.invalidate_temporal)
-    # self.tmo.on_property_changed.connect(self.invalidate)
 
     self.processing_range = Configuration.sequence.frame_range_window
 
@@ -29,11 +30,8 @@ class LeonhardtTMOProcessor(Processor):
       self.brightness = numpy.zeros(self.temporal.brightness.shape)
 
       for i in range(self.temporal.key.shape[1]):
-        self.brightness[:, i] = self.temporal.brightness[:, i]
-        self.contrast[:, i] = (1 - self.tmo.contrast) + (self.tmo.contrast * self.temporal.key[:, i])
-
-  def before(self):
-    self.invalidate_temporal()
+        self.brightness[:, i] = wlsfilter(self.temporal.brightness[:, i], self.temporal.lambda_, self.temporal.alpha)
+        self.contrast[:, i] = (1 - self.tmo.contrast) + wlsfilter(self.tmo.contrast * self.temporal.key[:, i], self.temporal.lambda_, self.temporal.alpha)
 
   def __getitem__(self, index):
     abs_index = Configuration.sequence.frame_range.absolutize(index)
@@ -66,19 +64,9 @@ class LeonhardtTMOProcessor(Processor):
     return ldr
 
   def __iter__(self):
-    pass
-    # for index in self.processing_range:
-    #   frame = Configuration.sequence[index]
-    #   abs_index = self.processing_range.absolutize(index)
-    #
-    #   for channel_index in range(frame.shape[-1]):
-    #     channel = remove_specials(frame[..., channel_index])
-    #     [min_lum, max_lum] = numpy.percentile(channel, [self.temporal.quantile_lower * 100.0, self.temporal.quantile_upper * 100.0])
-    #     channel_percentiled = numpy.clip(channel, min_lum, max_lum)
-    #     min_lum = numpy.log(min_lum)
-    #     max_lum = numpy.log(max_lum)
-    #     world_lum = numpy.mean(numpy.log(channel_percentiled))
-    #     self.key[abs_index, channel_index] = (max_lum - world_lum) / (max_lum - min_lum + EPSILON)
-    #     self.brightness[abs_index, channel_index] = math.exp((max_lum + min_lum) / (max_lum - min_lum + EPSILON))
-    #
-    #   yield index
+    self.invalidate_temporal()
+    filename = os.path.join(self.filename, '%08d.exr')
+    
+    for index in self.processing_range:
+      Configuration.sequence.write(filename % index, self[index])
+      yield self.processing_range.absolutize(index)

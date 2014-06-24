@@ -9,6 +9,17 @@ def build_pattern_from_path(path):
   return os.path.join(file_dir, "%" + "%02d" % len(file_name) + "d" + file_extension)
 
 
+def deep_dict_key_sanitation(d):
+  new = {}
+  for k, v in d.iteritems():
+    if isinstance(v, dict):
+      v = deep_dict_key_sanitation(v)
+    while k.startswith('_'):
+      k = k[1:]
+    new[k] = v
+  return new
+
+
 class FrameRange():
   def __init__(self, lower_limit, upper_limit):
     self._lower_limit = lower_limit

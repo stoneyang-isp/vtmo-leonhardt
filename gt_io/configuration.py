@@ -2,6 +2,8 @@ from PyQt4 import QtCore
 
 from PyQt4.QtCore import QObject
 import msgpack
+from scipy.io import savemat
+from gt_io.utilities import deep_dict_key_sanitation
 
 from .serializable import Serializable
 
@@ -47,10 +49,13 @@ class ConfigurationKlass(Serializable, QObject):
   def setup(self):
     self._filename = None
 
+  def export(self, filename):
+    savemat(filename, {'config': deep_dict_key_sanitation(self.serialize())})
+
 
 class VTMOLeonhardtConfigurationKlass(ConfigurationKlass):
-  def __init__(self):
-    ConfigurationKlass.__init__(self)
+  def __init__(self, *args, **kwargs):
+    ConfigurationKlass.__init__(self, *args, **kwargs)
 
     self.setdefault('_temporal', {})
     self.setdefault('_leonhardt_tmo', {})

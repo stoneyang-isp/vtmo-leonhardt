@@ -30,7 +30,7 @@ class Serializable(IterableUserDict, object):
     return data
 
   def clear(self):
-    IterableUserDict.clear(self)
+    super(Serializable, self).clear()
     if hasattr(self, 'setup') and callable(getattr(self, 'setup')):
       self.setup()
 

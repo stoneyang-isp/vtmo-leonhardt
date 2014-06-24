@@ -1,5 +1,4 @@
 import os
-import functools
 
 from PyQt4 import QtGui
 
@@ -55,21 +54,21 @@ class MainWindow(QtGui.QMainWindow):
     self.soft_reset()
 
   def on_new_triggered(self):
-    filename = QtGui.QFileDialog.getOpenFileName(parent=self, caption='New Session...',
-                                                 filter=QFILEDIALOG_IMAGE_SEQUENCE_FILTER)
+    filename = str(QtGui.QFileDialog.getOpenFileName(parent=self, caption='New Session...',
+                                                     filter=QFILEDIALOG_IMAGE_SEQUENCE_FILTER))
     self.activateWindow()
     if filename:
       self.hard_reset()
-      Configuration.update({'_sequence': {'_file_pattern': build_pattern_from_path(str(filename))}})
+      Configuration.update({'_sequence': {'_file_pattern': build_pattern_from_path(filename)}})
 
       self.setup()
 
   def on_open_triggered(self):
-    filename = QtGui.QFileDialog.getOpenFileName(parent=self, caption='Open...',
-                                                 filter=QFILEDIALOG_CONFIGURATION_FILTER)
+    filename = str(QtGui.QFileDialog.getOpenFileName(parent=self, caption='Open...',
+                                                     filter=QFILEDIALOG_CONFIGURATION_FILTER))
     self.activateWindow()
     if filename:
-      Configuration.open(str(filename))
+      Configuration.open(filename)
       self.setup()
 
   def on_save_triggered(self):
@@ -79,21 +78,24 @@ class MainWindow(QtGui.QMainWindow):
       self.on_save_as_triggered()
 
   def on_save_as_triggered(self):
-    filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption='Save...',
-                                                 filter=QFILEDIALOG_CONFIGURATION_FILTER)
+    filename = str(QtGui.QFileDialog.getSaveFileName(parent=self, caption='Save...',
+                                                     filter=QFILEDIALOG_CONFIGURATION_FILTER))
     self.activateWindow()
     if filename:
-      Configuration.save(str(filename))
-
-  def on_render_triggered(self):
-    pass
+      Configuration.save(filename)
 
   def on_export_triggered(self):
-    filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption='Save...',
-                                                 filter=QFILEDIALOG_MATLAB_FILTER)
+    filename = str(QtGui.QFileDialog.getSaveFileName(parent=self, caption='Export to Matlab...',
+                                                     filter=QFILEDIALOG_MATLAB_FILTER))
     self.activateWindow()
     if filename:
-      pass
+      Configuration.export(str(filename))
+
+  def on_render_triggered(self):
+    filename = str(QtGui.QFileDialog.getExistingDirectory(parent=self, caption='Render to Folder...'))
+    self.activateWindow()
+    if filename:
+      ProcessorDialog(LeonhardtTMOProcessor(filename), self).exec_()
 
   def on_close_triggered(self):
     self.hard_reset()

@@ -35,7 +35,6 @@ class Viewer(ViewBox, QObject):
     self.invalidate_by_index(Configuration.sequence.index)
 
   def invalidate_by_index(self, index):
-
     if Configuration.leonhardt_tmo.preview:
       image = Configuration.leonhardt_tmo.processor[index]
     else:

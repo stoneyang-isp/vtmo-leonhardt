@@ -1,7 +1,7 @@
 from PyQt4 import QtCore
 import os
 import glob
-from OpenEXR import InputFile
+from OpenEXR import InputFile, OutputFile
 from PyQt4.QtCore import QObject
 
 import numpy
@@ -112,6 +112,12 @@ class ImageSequence(Serializable, QObject):
 
   def setup(self):
     sample = InputFile(self.file_pattern % self.frame_range.lower_limit)
-    dw = sample.header()['dataWindow']
+    self.header = sample.header()
+    dw = self.header['dataWindow']
     (self.width, self.height) = (dw.max.x - dw.min.x + 1, dw.max.y - dw.min.y + 1)
     self.shape = (self.height, self.width, len(sample.header()['channels']))
+
+  def write(self, filename, input):
+    output = OutputFile(filename, self.header)
+    (r, g, b) = [input[..., c].astype(numpy.float16).tostring() for c in (0, 1, 2)]
+    output.writePixels({'R': r, 'G': g, 'B': b})
