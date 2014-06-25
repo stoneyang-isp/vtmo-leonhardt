@@ -57,10 +57,6 @@ class VTMOLeonhardtConfigurationKlass(ConfigurationKlass):
   def __init__(self, *args, **kwargs):
     ConfigurationKlass.__init__(self, *args, **kwargs)
 
-    self.setdefault('_temporal', {})
-    self.setdefault('_leonhardt_tmo', {})
-    self.setdefault('_sequence', {})
-
   @property
   def temporal(self):
     return self._temporal
@@ -84,5 +80,11 @@ class VTMOLeonhardtConfigurationKlass(ConfigurationKlass):
   @sequence.setter
   def sequence(self, value):
     self._sequence = value
+
+  def setup(self):
+    ConfigurationKlass.setup(self)
+    self.setdefault('_temporal', {})
+    self.setdefault('_leonhardt_tmo', {})
+    self.setdefault('_sequence', {})
 
 Configuration = VTMOLeonhardtConfigurationKlass()

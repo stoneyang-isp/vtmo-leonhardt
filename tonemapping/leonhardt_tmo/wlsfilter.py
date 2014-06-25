@@ -31,7 +31,7 @@ def wlsfilter(image, lambda_, alpha):
 
   output = spsolve(a, image.flatten(1))
 
-  if dy.ndim > 1:
+  if image.ndim > 1:
     output = numpy.rollaxis(output.reshape(s[::-1]), 1)
 
   return output
