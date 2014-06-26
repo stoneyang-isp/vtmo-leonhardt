@@ -4,6 +4,7 @@ from OpenEXR import InputFile, OutputFile
 
 from PyQt4 import QtCore
 from PyQt4.QtCore import QObject
+import cv2
 import numpy
 import Imath
 
@@ -105,14 +106,8 @@ class ImageSequence(Serializable, QObject):
     if not isinstance(index, int) and index in self.frame_range:
       raise IndexError
 
-    exrfile = InputFile(self.file_pattern % index)
-
-    channels = ('R', 'G', 'B')
-
-    output = numpy.ndarray(dtype=numpy.float, shape=(self.height, self.width, channels.__len__()))
-
-    for channel_index, channel in enumerate(channels):
-      output[:, :, channel_index] = numpy.fromstring(exrfile.channel(channel, Imath.PixelType(Imath.PixelType.HALF)), dtype=numpy.float16).astype(numpy.float).reshape([self.height, self.width])
+    output = cv2.imread(self._file_pattern % index, flags=cv2.CV_LOAD_IMAGE_UNCHANGED)
+    output = cv2.cvtColor(output, cv2.COLOR_BGR2RGB)
 
     self.cache = output
     self.cache_index = index
@@ -120,11 +115,8 @@ class ImageSequence(Serializable, QObject):
     return output * numpy.exp(self.exposure_offset)
 
   def setup(self):
-    sample = InputFile(self.file_pattern % self.frame_range.lower_limit)
-    self.header = sample.header()
-    dw = self.header['dataWindow']
-    (self.width, self.height) = (dw.max.x - dw.min.x + 1, dw.max.y - dw.min.y + 1)
-    self.shape = (self.height, self.width, len(sample.header()['channels']))
+    self.header = InputFile(self.file_pattern % self.frame_range.lower_limit).header()
+    self.shape = self[self.frame_range.lower_limit].shape
 
   def write(self, filename, input):
     output = OutputFile(filename, self.header)

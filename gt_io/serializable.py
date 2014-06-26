@@ -29,11 +29,6 @@ class Serializable(IterableUserDict, object):
       data[key] = value.serialize() if hasattr(value, 'serialize') else value
     return data
 
-  def clear(self):
-    super(Serializable, self).clear()
-    if hasattr(self, 'setup') and callable(getattr(self, 'setup')):
-      self.setup()
-
 
 class SerializableList(UserList):
   def serialize(self):

@@ -10,5 +10,4 @@ if __name__ == "__main__":
   for i in range(brightness.shape[1]):
     brightness[:, i] = wlsfilter(brightness[:, i], 1.0, 1.2)
 
-
-  print wlsfilter(numpy.array([1 ,2, 3]), 1.0, 1.2)
+  # print wlsfilter(numpy.array([1 ,2, 3]), 1.0, 1.2)

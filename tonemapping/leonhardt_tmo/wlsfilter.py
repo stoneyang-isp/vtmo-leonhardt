@@ -1,6 +1,7 @@
 import numpy
 from scipy.sparse import spdiags
 from scipy.sparse.linalg import spsolve
+import time
 
 from tonemapping.utilities import EPSILON
 

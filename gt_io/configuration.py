@@ -46,12 +46,14 @@ class ConfigurationKlass(Serializable, QObject):
   def pack(self):
     return msgpack.packb(self.serialize())
 
-  def setup(self):
-    self._filename = None
-
   def export(self, filename):
     savemat(filename, {'config': deep_dict_key_sanitation(self.serialize())})
 
+  def clear(self):
+    super(Serializable, self).clear()
+    # if hasattr(self, 'setup') and callable(getattr(self, 'setup')):
+    #   self.setup()
+    self._filename = None
 
 class VTMOLeonhardtConfigurationKlass(ConfigurationKlass):
   def __init__(self, *args, **kwargs):
@@ -81,8 +83,8 @@ class VTMOLeonhardtConfigurationKlass(ConfigurationKlass):
   def sequence(self, value):
     self._sequence = value
 
-  def setup(self):
-    ConfigurationKlass.setup(self)
+  def clear(self):
+    ConfigurationKlass.clear(self)
     self.setdefault('_temporal', {})
     self.setdefault('_leonhardt_tmo', {})
     self.setdefault('_sequence', {})
