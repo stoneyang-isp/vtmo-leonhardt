@@ -20,11 +20,10 @@ def deep_dict_key_sanitation(d):
   return new
 
 
-class FrameRange():
+class FrameRange(object):
   def __init__(self, lower_limit, upper_limit):
     self._lower_limit = lower_limit
     self._upper_limit = upper_limit
-    self._invalidate()
 
   @property
   def lower_limit(self):
@@ -32,8 +31,8 @@ class FrameRange():
 
   @lower_limit.setter
   def lower_limit(self, value):
-    self._lower_limit = value
-    self._invalidate()
+    if not self._lower_limit == value:
+      self._lower_limit = value
 
   @property
   def upper_limit(self):
@@ -41,8 +40,8 @@ class FrameRange():
 
   @upper_limit.setter
   def upper_limit(self, value):
-    self._upper_limit = value
-    self._invalidate()
+    if not self._upper_limit == value:
+      self._upper_limit = value
 
   @property
   def range(self):
@@ -53,13 +52,10 @@ class FrameRange():
     self.lower_limit, self.upper_limit = value
 
   def __len__(self):
-    return len(self._iterator)
+    return len(xrange(self.lower_limit, self.upper_limit + 1))
 
   def __iter__(self):
-    return iter(self._iterator)
-
-  def _invalidate(self):
-    self._iterator = xrange(self.lower_limit, self.upper_limit + 1)
+    return iter(xrange(self.lower_limit, self.upper_limit + 1))
 
   def serialize(self):
     return self.range

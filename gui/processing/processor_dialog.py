@@ -37,4 +37,5 @@ class ProcessorDialog(QtGui.QDialog):
 
   def reject(self):
     self.processor.cancel()
+    self.processor.wait()
     QtGui.QDialog.reject(self)
