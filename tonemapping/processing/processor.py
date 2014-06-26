@@ -1,12 +1,14 @@
-from threading import Thread
-from obsub import event
+from PyQt4.QtCore import QThread, pyqtSignal
 
 from .progressbar import ProgressBar, Timer, SimpleProgress, Percentage, ETA
 
 
-class Processor(Thread):
+class Processor(QThread):
+  on_progress = pyqtSignal(int, ProgressBar)
+  on_finish = pyqtSignal()
+
   def __init__(self):
-    Thread.__init__(self)
+    QThread.__init__(self)
     self._cancel_requested = False
     self.processing_range = None
 
@@ -24,25 +26,17 @@ class Processor(Thread):
       if self._cancel_requested:
         break
       self.progress.update(index)
-      self.on_progress(index, self.progress)
+      self.on_progress.emit(index, self.progress)
 
     if hasattr(self, 'after') and not self._cancel_requested:
       self.after()
 
     self._cancel_requested = False
     self.progress.finish()
-    self.on_finish()
+    self.on_finish.emit()
 
   def __iter__(self):
     pass
 
   def cancel(self):
     self._cancel_requested = True
-
-  @event
-  def on_progress(self, index, data):
-    pass
-
-  @event
-  def on_finish(self):
-    pass
