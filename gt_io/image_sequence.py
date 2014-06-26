@@ -1,11 +1,10 @@
-from PyQt4 import QtCore
 import os
 import glob
 from OpenEXR import InputFile, OutputFile
-from PyQt4.QtCore import QObject
 
+from PyQt4 import QtCore
+from PyQt4.QtCore import QObject
 import numpy
-from obsub import event
 import Imath
 
 from .utilities import FrameRange
@@ -27,11 +26,12 @@ class ImageSequence(Serializable, QObject):
 
     # Facts
     files = glob.glob(os.path.join(os.path.dirname(self.file_pattern), "*" + os.path.splitext(self.file_pattern)[1]))
-    self.frame_range = FrameRange(int(os.path.splitext(os.path.basename(files[0]))[0]),
-                                  int(os.path.splitext(os.path.basename(files[-1]))[0]))
+    self._frame_range = FrameRange(int(os.path.splitext(os.path.basename(files[0]))[0]),
+                                   int(os.path.splitext(os.path.basename(files[-1]))[0]))
 
     # Defaults
     self.setdefault('_file_pattern', None)
+    self.setdefault('_frame_range', None)
     self.setdefault('_frame_range_window', self.frame_range.range)
     self.setdefault('_exposure_offset', 0.0)
 
@@ -72,6 +72,15 @@ class ImageSequence(Serializable, QObject):
   def frame_range_window(self, value):
     if not self._frame_range_window == value:
       self._frame_range_window = value
+      
+  @property
+  def frame_range(self):
+    return self._frame_range
+
+  @frame_range.setter
+  def frame_range(self, value):
+    if not self._frame_range == value:
+      self._frame_range = value
 
   @property
   def file_pattern(self):

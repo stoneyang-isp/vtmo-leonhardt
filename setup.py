@@ -10,8 +10,6 @@ from setuptools import setup
 APP = ['__init__.py']
 OPTIONS = {'argv_emulation': True,
  'iconfile': 'favicon.icns',
- 'packages': 'PyQt4',
- 'excludes': 'cairo,PyQt4.uic.port_v3',
  'plist': {'CFBundleDevelopmentRegion': 'English',
            'CFBundleDisplayName': 'VTMO Leonhardt',
            'CFBundleDocumentTypes': [{'CFBundleTypeOSTypes': ['****',
@@ -53,5 +51,5 @@ OPTIONS = {'argv_emulation': True,
 setup(
     app=APP,
     options={'py2app': OPTIONS},
-    setup_requires=['py2app'],
+    setup_requires=['py2app', 'numpy', 'scipy'],
 )

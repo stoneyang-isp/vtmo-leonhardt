@@ -2,7 +2,7 @@ import os
 
 import numpy
 
-from gt_io import Configuration, ImageSequence
+from gt_io import Configuration
 from .processor import Processor
 from tonemapping.leonhardt_tmo import wlsfilter
 from ..utilities import remove_specials, EPSILON
@@ -49,7 +49,6 @@ class LeonhardtTMOProcessor(Processor):
       hdr_coarse = hdr
 
     transfered = numpy.zeros(hdr.shape)
-
     hdr_mean = numpy.mean(hdr, axis=2)
 
     for channel_index in range(hdr.shape[2]):
